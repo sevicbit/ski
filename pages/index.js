@@ -29,12 +29,6 @@ export default function Home() {
     <>
       <Head>
         <title>Create raw script URL</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
-          rel="stylesheet"
-        />
       </Head>
 
       <div style={styles.page}>
@@ -60,7 +54,6 @@ export default function Home() {
               <div style={{ marginBottom: 8, color: '#cbd5e1' }}>
                 Raw URL (works only via HTTP request with required header):
               </div>
-              {/* ✅ Clickable link */}
               <a href={url} target="_blank" rel="noopener noreferrer" style={styles.link}>
                 {url}
               </a>
@@ -85,7 +78,7 @@ const styles = {
   card: {
     width: '100%',
     maxWidth: 900,
-    background: '#071022',
+    background: 'transparent', // made transparent
     padding: 24,
     borderRadius: 12,
   },
@@ -126,7 +119,7 @@ const styles = {
     borderRadius: 8,
   },
   link: {
-    fontFamily: 'monospace',
+    fontFamily: 'monospace', // fixed typo
     fontSize: 13,
     color: '#38bdf8',
     textDecoration: 'underline',
