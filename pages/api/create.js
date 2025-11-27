@@ -1,46 +1,32 @@
-import clientPromise from '../../../lib/mongodb'
+import clientPromise from "../../lib/mongodb";
+import crypto from "crypto";
 
 export default async function handler(req, res) {
-  const { id } = req.query || {}
-
-  const headerAllow = req.headers['x-allow-fetch']
-  if (headerAllow && String(headerAllow).toLowerCase() === 'true') {
-    return serveScript(id, res)
-  }
-
-  const key = req.query && req.query.key
-  if (key && process.env.ACCESS_KEY && key === process.env.ACCESS_KEY) {
-    return serveScript(id, res)
-  }
-
-  const ua = (req.headers['user-agent'] || '').toString().toLowerCase()
-  if (ua.includes('roblox')) {
-    return serveScript(id, res)
-  }
-
-  res.status(403).setHeader('content-type', 'text/plain').send('ACCESS DENIED')
-}
-
-async function serveScript(id, res) {
-  if (!id) {
-    return res.status(400).send('BAD REQUEST')
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const client = await clientPromise
-    const db = client.db('robloxkeys')
-    const collection = db.collection('scripts')
+    const client = await clientPromise;
+    const db = client.db("robloxkeys");
+    const collection = db.collection("scripts");
 
-    const doc = await collection.findOne({ _id: id })
-    if (!doc) {
-      return res.status(404).send('NOT FOUND')
+    const { script } = req.body;
+    if (!script || !script.trim()) {
+      return res.status(400).json({ error: "Script is required" });
     }
 
-    res.status(200)
-      .setHeader('content-type', 'text/plain; charset=utf-8')
-      .send(doc.script)
+    const id = crypto.randomBytes(16).toString("hex");
+
+    await collection.insertOne({
+      _id: id,
+      script,
+      createdAt: new Date(),
+    });
+
+    return res.status(200).json({ id });
   } catch (err) {
-    console.error('/api/raw error:', err)
-    res.status(500).send('DB ERROR')
+    console.error("API /create error:", err.message);
+    return res.status(500).json({ error: "Database connection failed" });
   }
 }
